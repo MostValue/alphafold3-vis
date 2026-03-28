@@ -1,9 +1,5 @@
-import React from 'react';
-import { HomePage } from '@/src/homepage/HomePage';
+import { redirect } from 'next/navigation';
 
 export default function Page() {
-    return <>
-        <HomePage />
-        <div id="portal-container"></div>
-    </>;
+    redirect('/llm');
 }
