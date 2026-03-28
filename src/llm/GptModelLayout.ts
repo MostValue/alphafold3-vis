@@ -1,4 +1,5 @@
 import { IBlockLayerLink, IGptModelLink, ILayerNormLayerLink, IModelShape } from "./GptModel";
+import { ArchitectureKind } from "./Architecture";
 import { isNil } from "@/src/utils/data";
 import { Mat4f } from "@/src/utils/matrix";
 import { Dim, Vec3 } from "@/src/utils/vector";
@@ -173,6 +174,13 @@ export interface IModelLayout {
     height: number;
     margin: number;
     cubes: IBlkDef[];
+    labels: IBlkLabel[];
+}
+
+export interface IArchitectureLayout extends IModelLayout {
+    kind: ArchitectureKind;
+    title: string;
+    summary: string;
 }
 
 export function cellPosition(layout: IModelLayout, blk: IBlkDef, dim: Dim, index: number) {
@@ -191,6 +199,10 @@ export function cellPosition(layout: IModelLayout, blk: IBlkDef, dim: Dim, index
 
 export type IGptModelLayout = ReturnType<typeof genGptModelLayout>;
 export type IGptLayerNormLayout = IGptModelLayout['ln_f'];
+
+export function isGptModelLayout(layout: IArchitectureLayout): layout is IGptModelLayout {
+    return layout.kind === 'gpt';
+}
 
 export function genGptModelLayout(shape: IModelShape, gptGpuModel: IGptModelLink | null = null, offset: Vec3 = new Vec3(0, 0, 0)) {
     let { B, T, C, vocabSize, nHeads, A, nBlocks } = shape;
@@ -905,6 +917,9 @@ export function genGptModelLayout(shape: IModelShape, gptGpuModel: IGptModelLink
     }
 
     return {
+        kind: 'gpt' as const,
+        title: 'nano-gpt',
+        summary: 'Token embedding, transformer stack, and logits/softmax walkthrough.',
         cubes,
         cell,
         margin,
@@ -933,4 +948,3 @@ export function genGptModelLayout(shape: IModelShape, gptGpuModel: IGptModelLink
         },
     };
 }
-

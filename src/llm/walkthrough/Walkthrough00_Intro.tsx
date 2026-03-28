@@ -7,7 +7,7 @@ import React, { useState } from "react";
 import { useProgramState } from "../Sidebar";
 import { dimProps, findSubBlocks, splitGrid } from "../Annotations";
 import { useGlobalDrag } from "@/src/utils/pointer";
-import { BlkSpecial, IBlkDef } from "../GptModelLayout";
+import { BlkSpecial, IBlkDef, IGptModelLayout } from "../GptModelLayout";
 import { IProgramState } from "../Program";
 import { lerp } from "@/src/utils/math";
 import { drawDependences } from "../Interaction";
@@ -234,7 +234,8 @@ interface IProcessInfo {
 }
 
 export function startProcessBefore(state: IProgramState, block: IBlkDef): IProcessInfo {
-    let activeBlocks = state.layout.cubes.filter(a => a.t !== 'w');
+    let layout = state.layout as IGptModelLayout;
+    let activeBlocks = layout.cubes.filter(a => a.t !== 'w');
 
     return {
         lastBlockIdx: activeBlocks.indexOf(block) - 1,
@@ -242,8 +243,8 @@ export function startProcessBefore(state: IProgramState, block: IBlkDef): IProce
 }
 
 export function processUpTo(state: IProgramState, timer: ITimeInfo, block: IBlkDef, prevInfo?: IProcessInfo): IProcessInfo {
-
-    let activeBlocks = state.layout.cubes.filter(a => a.t !== 'w');
+    let layout = state.layout as IGptModelLayout;
+    let activeBlocks = layout.cubes.filter(a => a.t !== 'w');
 
     let firstIdx = prevInfo ? prevInfo.lastBlockIdx + 1 : 0;
     let lastIdx = activeBlocks.indexOf(block);
@@ -290,7 +291,7 @@ export function processUpTo(state: IProgramState, timer: ITimeInfo, block: IBlkD
     let blockPos = new Vec3().withSetAt(dim0, horizIdx).withSetAt(dim1, vertIdx); // new Vec3(horizIdx, vertIdx, 0);
     let pinPos = new Vec3(Math.floor(cx / 2), 0, 0);
 
-    if (blk === state.layout.residual0) {
+    if (blk === layout.residual0) {
         pinPos = new Vec3(cx * 2, -2, 0);
     }
 
@@ -309,7 +310,7 @@ export function processUpTo(state: IProgramState, timer: ITimeInfo, block: IBlkD
         drawDependences(state, blk, blockPos);
         drawDataFlow(state, blk, blockPos, pinPos);
 
-        for (let label of state.layout.labels) {
+        for (let label of layout.labels) {
             for (let c of label.cubes) {
                 if (c === blk) {
                     label.visible = 1.0;

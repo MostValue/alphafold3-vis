@@ -142,7 +142,7 @@ export function getCurrentNavLevel(state: IProgramState, navLevels: INavLevel): 
 }
 
 export function manageMovement(state: IProgramState, view: IRenderView) {
-    let navLevels = constructNavLevels(state.layout);
+    let navLevels = constructNavLevels(state.layout as IGptModelLayout);
 
     let current = getCurrentNavLevel(state, navLevels) ?? { level: navLevels, parent: null, depth: 0, parents: [] };
     let mvmt = state.movement;

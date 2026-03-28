@@ -1,6 +1,6 @@
 import { text } from "stream/consumers";
 import { dimProps, TextAlignHoriz } from "../Annotations";
-import { BlKDepSpecial, BlkSpecial, cellPosition, IBlkCellDep, IBlkDef } from "../GptModelLayout";
+import { BlKDepSpecial, BlkSpecial, cellPosition, IBlkCellDep, IBlkDef, IGptModelLayout } from "../GptModelLayout";
 import { getDepDotLen, getDepSrcIdx } from "../Interaction";
 import { IProgramState } from "../Program";
 import { drawText, IFontOpts, measureText } from "../render/fontRender";
@@ -205,9 +205,10 @@ export function getBlockValueAtIdx(blk: IBlkDef, blkIdx: Vec3) {
 
 export function drawOLIndexLookup(args: IDataFlowArgs, offset: Vec3) {
     let { state, center, destIdx, mtx } = args;
-    let tokenIdx = getBlockValueAtIdx(state.layout.idxObj, new Vec3(destIdx.x, 0, destIdx.z));
-    let tokenPct = isNotNil(tokenIdx) ? tokenIdx / (state.layout.tokEmbedObj.cx - 1) : 0.3;
-    let heightPct = destIdx.y / (state.layout.residual0.cy - 1);
+    let layout = state.layout as IGptModelLayout;
+    let tokenIdx = getBlockValueAtIdx(layout.idxObj, new Vec3(destIdx.x, 0, destIdx.z));
+    let tokenPct = isNotNil(tokenIdx) ? tokenIdx / (layout.tokEmbedObj.cx - 1) : 0.3;
+    let heightPct = destIdx.y / (layout.residual0.cy - 1);
 
     let pos = center.add(new Vec3(-35, -20, 0));
     let color = Colors.Weights;
@@ -250,8 +251,9 @@ export function drawOLIndexLookup(args: IDataFlowArgs, offset: Vec3) {
 
 export function drawOLPosEmbedLookup(args: IDataFlowArgs, offset: Vec3) {
     let { state, center, destIdx, mtx } = args;
-    let posPct = destIdx.x / (state.layout.posEmbedObj.cx - 1);
-    let heightPct = destIdx.y / (state.layout.residual0.cy - 1);
+    let layout = state.layout as IGptModelLayout;
+    let posPct = destIdx.x / (layout.posEmbedObj.cx - 1);
+    let heightPct = destIdx.y / (layout.residual0.cy - 1);
 
     let pos = center.add(new Vec3(35, -20, 0));
     let color = Colors.Weights;
@@ -764,6 +766,7 @@ function drawDepArrows(args: IDataFlowArgs, bb: BoundingBox3d) {
 
     function drawDepArrow(dep: IBlkCellDep, dotLen?: number | null) {
         let { srcIdx, otherDim, isDot } = getDepSrcIdx(dep, destIdx);
+        let layout = state.layout as IGptModelLayout;
 
         if (dep.src.opacity === 0) {
             return;
@@ -774,8 +777,8 @@ function drawDepArrows(args: IDataFlowArgs, bb: BoundingBox3d) {
             srcIdx.setAt(otherDim, (dotLen ?? cx) / 2);
         }
 
-        if (blk.deps?.special === BlKDepSpecial.InputEmbed && dep.src === args.state.layout.tokEmbedObj) {
-            let tokenIdx = getBlockValueAtIdx(state.layout.idxObj, new Vec3(destIdx.x, 0, destIdx.z));
+        if (blk.deps?.special === BlKDepSpecial.InputEmbed && dep.src === layout.tokEmbedObj) {
+            let tokenIdx = getBlockValueAtIdx(layout.idxObj, new Vec3(destIdx.x, 0, destIdx.z));
             srcIdx.setAt(Dim.X, tokenIdx ?? 0);
         }
 

@@ -32,6 +32,8 @@ async function fetchTensorData(url: string): Promise<ITensorSet> {
     return data;
 }
 
+const enableGptRuntime = false;
+
 export function LayerView() {
     let [canvasEl, setCanvasEl] = useState<HTMLCanvasElement | null>(null);
     let [dataAndModel, setDataAndModel] = useState<IDataAndModel | null>(null);
@@ -60,6 +62,9 @@ export function LayerView() {
 
     useGlobalKeyboard(KeyboardOrder.MainPage, (ev: KeyboardEvent) => {
         if (!canvasRender?.progState) {
+            return;
+        }
+        if (canvasRender.progState.architecture !== 'gpt') {
             return;
         }
         let key = ev.key.toLowerCase();
@@ -126,6 +131,9 @@ export function LayerView() {
     }, [keyboardManager]);
 
     useEffect(() => {
+        if (!enableGptRuntime) {
+            return;
+        }
         let stale = false;
         async function getData() {
             let dataP = fetchTensorData('gpt-nano-sort-t0-partials.json');
@@ -156,7 +164,7 @@ export function LayerView() {
 
     useEffect(() => {
         if (canvasEl && fontAtlasData) {
-            let canvasRenderLocal = new CanvasRender(canvasEl, null!, fontAtlasData);
+            let canvasRenderLocal = new CanvasRender(canvasEl, { dataAndModel: null }, fontAtlasData);
             let resizeObserver = new ResizeObserver(() => {
                 canvasRenderLocal.canvasSizeDirty = true;
                 canvasRenderLocal.markDirty();
@@ -176,6 +184,9 @@ export function LayerView() {
     }, [canvasEl, fontAtlasData]);
 
     useEffect(() => {
+        if (!enableGptRuntime) {
+            return;
+        }
         canvasRender?.setData({ dataAndModel });
     }, [canvasRender, dataAndModel]);
 
@@ -252,7 +263,7 @@ class CanvasRender {
     setData(data: ICanvasData) {
         this.canvasData = data;
 
-        if (data.dataAndModel && !this.progState.gptGpuModel && this.progState.render) {
+        if (this.progState.architecture === 'gpt' && data.dataAndModel && !this.progState.gptGpuModel && this.progState.render) {
             this.progState.gptGpuModel = initModel(this.renderState, data.dataAndModel, 1);
             this.progState.native = data.dataAndModel.native;
             this.progState.wasmGptModel = constructModel(data.dataAndModel.model, data.dataAndModel.model.config, data.dataAndModel.native);
@@ -270,7 +281,7 @@ class CanvasRender {
     isWaitingForSync = false;
 
     markDirty = () => {
-        if (!this.canvasData || this.stopped) {
+        if (this.stopped) {
             return;
         }
 

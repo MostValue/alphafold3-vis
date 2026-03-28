@@ -368,6 +368,14 @@ export enum DimStyle {
     Intermediates,
     Weights,
     Aggregates,
+    Atoms,
+    MSA,
+    Template,
+    Chains,
+    Cycles,
+    DiffusionStep,
+    Features,
+    Pairs,
 }
 
 export function dimStyleColor(style: DimStyle) {
@@ -382,6 +390,22 @@ export function dimStyleColor(style: DimStyle) {
             return Vec4.fromHexColor('#ce2983');
         case DimStyle.Token:
             return new Vec4(0.3, 0.7, 0.3, 1);
+        case DimStyle.Atoms:
+            return Vec4.fromHexColor('#2f6fdd');
+        case DimStyle.MSA:
+            return Vec4.fromHexColor('#1f8f65');
+        case DimStyle.Template:
+            return Vec4.fromHexColor('#d97706');
+        case DimStyle.Chains:
+            return Vec4.fromHexColor('#8b5cf6');
+        case DimStyle.Cycles:
+            return Vec4.fromHexColor('#ef4444');
+        case DimStyle.DiffusionStep:
+            return Vec4.fromHexColor('#0f766e');
+        case DimStyle.Features:
+            return Vec4.fromHexColor('#475569');
+        case DimStyle.Pairs:
+            return Vec4.fromHexColor('#7c3aed');
         case DimStyle.TokenIdx:
             return Vec4.fromHexColor('#1b495d');
         case DimStyle.n_vocab:

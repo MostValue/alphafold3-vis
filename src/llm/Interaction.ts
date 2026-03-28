@@ -1,6 +1,6 @@
 import { blockDimension, dimProps, findSubBlocks, splitGrid, splitGridForHighlight } from "./Annotations";
 import { drawDataFlow, getBlockValueAtIdx } from "./components/DataFlow";
-import { BlKDepSpecial, IBlkCellDep, IBlkDef } from "./GptModelLayout";
+import { BlKDepSpecial, IBlkCellDep, IBlkDef, IGptModelLayout } from "./GptModelLayout";
 import { IProgramState } from "./Program";
 import { clamp, isNotNil } from "@/src/utils/data";
 import { Dim, Vec3, Vec4 } from "@/src/utils/vector";
@@ -191,7 +191,7 @@ export function getDepDotLen(blk: IBlkDef, destIdx: Vec3): number | null {
 }
 
 export function drawDependences(state: IProgramState, blk: IBlkDef, idx: Vec3) {
-    let layout = state.layout;
+    let layout = state.layout as IGptModelLayout;
     let deps = blk.deps;
     if (!deps) {
         return;
@@ -200,8 +200,8 @@ export function drawDependences(state: IProgramState, blk: IBlkDef, idx: Vec3) {
     function drawDep(dep: IBlkCellDep, destIdx: Vec3, dotLen?: number | null) {
         let { srcIdx, dotDim, otherDim, isDot } = getDepSrcIdx(dep, destIdx);
 
-        if (blk.deps?.special === BlKDepSpecial.InputEmbed && dep.src === state.layout.tokEmbedObj) {
-            let tokenIdx = getBlockValueAtIdx(state.layout.idxObj, new Vec3(destIdx.x, 0, destIdx.z));
+        if (blk.deps?.special === BlKDepSpecial.InputEmbed && dep.src === layout.tokEmbedObj) {
+            let tokenIdx = getBlockValueAtIdx(layout.idxObj, new Vec3(destIdx.x, 0, destIdx.z));
             isDot = false;
             srcIdx.setAt(Dim.X, tokenIdx ?? 0);
         }

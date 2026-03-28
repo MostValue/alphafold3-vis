@@ -8,9 +8,11 @@ import { Dim, Vec3 } from "@/src/utils/vector";
 import { Phase } from "./Walkthrough";
 import { processUpTo, startProcessBefore } from "./Walkthrough00_Intro";
 import { commentary, DimStyle, IWalkthroughArgs, moveCameraTo, setInitialCamera } from "./WalkthroughTools";
+import { IGptModelLayout } from "../GptModelLayout";
 
 export function walkthrough03_LayerNorm(args: IWalkthroughArgs) {
     let { walkthrough: wt, layout, state, tools: { afterTime, c_str, c_blockRef, c_dimRef, breakAfter, cleanup } } = args;
+    let gptLayout = state.layout as IGptModelLayout;
     let { C } = layout.shape;
 
     if (wt.phase !== Phase.Input_Detail_LayerNorm) {
@@ -24,7 +26,7 @@ export function walkthrough03_LayerNorm(args: IWalkthroughArgs) {
 
     commentary(wt, null, 0)`
 
-The  ${c_blockRef('_input embedding_', state.layout.residual0)} matrix from the previous section is the input to our first Transformer block.
+The  ${c_blockRef('_input embedding_', gptLayout.residual0)} matrix from the previous section is the input to our first Transformer block.
 
 The first step in the Transformer block is to apply _layer normalization_ to this matrix. This is an
 operation that normalizes the values in each column of the matrix separately.`;

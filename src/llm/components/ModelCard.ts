@@ -262,7 +262,7 @@ function numberToCommaSep(a: number) {
 }
 
 function renderInputAtTop(state: IProgramState) {
-    let layout = state.layout;
+    let layout = state.layout as IGptModelLayout;
     let render = state.render;
 
     let inputTokBlk = layout.idxObj;
@@ -323,7 +323,7 @@ function renderInputAtTop(state: IProgramState) {
 }
 
 function renderOutputAtBottom(state: IProgramState) {
-    let layout = state.layout;
+    let layout = state.layout as IGptModelLayout;
 
     let softmax = layout.logitsSoftmax;
 

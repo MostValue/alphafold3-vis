@@ -194,13 +194,15 @@ export function renderModel(state: IProgramState) {
 
     args.sharedRender.activePhase = RenderPhase.Opaque;
 
-    for (let example of state.examples) {
-        if (example.enabled && example.layout) {
-            let { modelMtx, viewMtx } = camera;
-            let { camPos } = cameraToMatrixView(camera);
-            var modelMtxLocal = modelMtx.mul(Mat4f.fromTranslation(example.offset));
-            writeModelViewUbo(args.sharedRender, modelMtxLocal, viewMtx);
-            renderAllBlocksInstanced(example.blockRender, example.layout, modelMtxLocal, camPos);
+    if (state.architecture === 'gpt') {
+        for (let example of state.examples) {
+            if (example.enabled && example.layout) {
+                let { modelMtx, viewMtx } = camera;
+                let { camPos } = cameraToMatrixView(camera);
+                var modelMtxLocal = modelMtx.mul(Mat4f.fromTranslation(example.offset));
+                writeModelViewUbo(args.sharedRender, modelMtxLocal, viewMtx);
+                renderAllBlocksInstanced(example.blockRender, example.layout, modelMtxLocal, camPos);
+            }
         }
     }
 

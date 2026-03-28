@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Subscriptions, useSubscriptions } from "@/src/utils/hooks";
 import { IElfTextSection, listElfTextSections, readElfHeader } from "../ElfParser";
 
@@ -31,14 +32,13 @@ export class CodeSuiteManager {
     }
 
     public getSuite(fileName: string) {
-        this.ensureSuiteLoaded(fileName);
         return this.suites.get(fileName);
     }
 
-    private ensureSuiteLoaded(fileName: string): Promise<void> {
+    public ensureSuiteLoaded(fileName: string): Promise<void> | undefined {
         let suite = this.suites.get(fileName);
         if (!suite || suite.loaded) {
-            return suite?.loadPromise!;
+            return suite?.loadPromise;
         }
 
         suite.loadPromise ??= this.loadSuite(suite);
@@ -80,5 +80,8 @@ export class CodeSuiteManager {
 
 export function useGetCodeSuite(manager: CodeSuiteManager, fileName: string) {
     useSubscriptions(manager.subs);
+    useEffect(() => {
+        void manager.ensureSuiteLoaded(fileName);
+    }, [manager, fileName]);
     return manager.getSuite(fileName);
 }

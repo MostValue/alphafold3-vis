@@ -7,13 +7,18 @@ import { Commentary } from './Commentary';
 import { IProgramState } from './Program';
 import { Popup, PopupPos } from '@/src/utils/Portal';
 import { useSubscriptions } from '../utils/hooks';
+import { isAf3ModelLayout } from './af3/Af3Layout';
 
 export const WalkthroughSidebar: React.FC = () => {
     let progState = useProgramState();
-    let walkthrough = progState.walkthrough;
-    let camera = progState.camera;
     let [menuVisible, setMenuVisible] = useState(false);
     let [menuButtonEl, setMenuButtonEl] = useState<HTMLElement | null>(null);
+    if (progState.architecture === 'af3' && isAf3ModelLayout(progState.layout)) {
+        return <Af3Sidebar />;
+    }
+
+    let walkthrough = progState.walkthrough;
+    let camera = progState.camera;
 
     function handlePhaseClick(ev: React.MouseEvent, phase: IPhaseDef) {
         if (walkthrough.phase !== phase.id) {
@@ -84,6 +89,43 @@ export const WalkthroughSidebar: React.FC = () => {
 };
 
 export let ProgramStateContext = createContext<IProgramState>(null!);
+
+const Af3Sidebar: React.FC = () => {
+    let progState = useProgramState();
+    let layout = isAf3ModelLayout(progState.layout) ? progState.layout : null;
+
+    return <div className={s.walkthrough}>
+        <div className={s.split}>
+            <div className={s.content}>
+                <div className={s.topSplit}>
+                    <div className={s.toc}>
+                        <div className={s.phaseGroup}>
+                            <div className={s.phaseGroupTitle}>{layout?.title ?? 'AlphaFold 3'}</div>
+                            <div className={s.phase}>
+                                <div className={s.phaseTitle}>{layout?.summary ?? 'Static overview'}</div>
+                            </div>
+                        </div>
+                        <div className={s.phaseGroup}>
+                            <div className={s.phaseGroupTitle}>Key Counts</div>
+                            <div className={s.phase}><div className={s.phaseTitle}>Tokens: {layout?.shape.nToken}</div></div>
+                            <div className={s.phase}><div className={s.phaseTitle}>Atoms: {layout?.shape.nAtom}</div></div>
+                            <div className={s.phase}><div className={s.phaseTitle}>MSA Rows: {layout?.shape.nMsa}</div></div>
+                            <div className={s.phase}><div className={s.phaseTitle}>Templates: {layout?.shape.nTemplate}</div></div>
+                            <div className={s.phase}><div className={s.phaseTitle}>Pairformer Blocks: {layout?.shape.nPairformerBlock}</div></div>
+                            <div className={s.phase}><div className={s.phaseTitle}>Diffusion Steps: {layout?.shape.nDiffusionStep}</div></div>
+                        </div>
+                        <div className={s.phaseGroup}>
+                            <div className={s.phaseGroupTitle}>Modules</div>
+                            {layout?.chapters.map((chapter) => <div key={chapter} className={s.phase}>
+                                <div className={s.phaseTitle}>{chapter}</div>
+                            </div>)}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>;
+};
 
 export function useProgramState() {
     let context = useContext(ProgramStateContext);
